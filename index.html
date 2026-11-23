@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SimTLV החטיבה העסקית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Rubik:wght@600;700;800&display=swap">
+<style>
+/* Layout: sticky section bar, a deep-violet opening band, then one column of sections; the calculator is the working centre. */
+:root{--bg:#ffffff;--ink:#1e1b2e;--muted:#6b6880;--line:#e8e5f2;--accent:#7c3aed;--strong:#5b21b6;--soft:#f3eefe;--card:#ffffff;--boost:#0e7490;--good:#15803d;--band:#2e1065;--alt:#f6f3fd;--band-ink:#f5f0ff;--on-accent:#ffffff;
+ --body:"Assistant","Segoe UI",Arial,sans-serif;--display:"Rubik","Assistant","Segoe UI",Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15121f;--ink:#efecf8;--muted:#a39fb8;--line:#2d2840;--accent:#a78bfa;--strong:#c4b5fd;--soft:#241d38;--card:#231d38;--alt:#1b1629;--boost:#67e8f9;--good:#4ade80;--band:#1f0b47;--band-ink:#f5f0ff;--on-accent:#15121f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15121f;--ink:#efecf8;--muted:#a39fb8;--line:#2d2840;--accent:#a78bfa;--strong:#c4b5fd;--soft:#241d38;--card:#231d38;--alt:#1b1629;--boost:#67e8f9;--good:#4ade80;--band:#1f0b47;--band-ink:#f5f0ff;--on-accent:#15121f;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{overflow-x:clip}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);direction:rtl;font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.2}
+h2{font-size:30px;margin-bottom:6px}
+h3{font-size:18px}
+.lead{color:var(--muted);font-size:17px;max-width:680px}
+.num{direction:ltr;unicode-bidi:isolate}
+button{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+/* bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:16px;padding-block:10px}
+.logo{direction:ltr;font-weight:800;font-size:20px;font-family:var(--display)}.logo b{color:var(--accent)}
+.nav{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-weight:700;font-size:14px;padding:6px 10px;border-radius:8px}
+.nav a:hover{background:var(--soft);color:var(--ink)}
+.cur{display:inline-flex;border:1.5px solid var(--accent);border-radius:10px;overflow:hidden;flex:none}
+.cur button{background:transparent;border:0;padding:6px 12px;font-weight:700;font-size:13px;color:var(--accent);cursor:pointer}
+.cur button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+/* hero */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:52px 44px;display:grid;gap:28px}
+.hero .eyebrow{font-weight:700;letter-spacing:.04em;opacity:.8;font-size:14px}
+.hero h1{font-size:44px;max-width:760px}
+.hero p{font-size:19px;opacity:.88;max-width:680px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{border:1px solid color-mix(in srgb,var(--band-ink) 22%,transparent);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font-family:var(--display);font-size:28px}
+.stat span{opacity:.8;font-size:14px}
+.gcard{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#ffffff;color:#202124;border-radius:16px;padding:14px 18px;text-decoration:none;max-width:560px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.gcard:hover{box-shadow:0 4px 18px rgba(0,0,0,.28)}
+.g-logo{font-family:Arial,sans-serif;font-size:22px;direction:ltr;letter-spacing:-.5px}
+.g-main{display:grid;gap:2px;flex:1;min-width:0}
+.g-name{font-weight:700;font-size:15px}
+.g-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px;color:#3c4043}
+.g-row b{font-size:20px;color:#202124}
+.stars{color:#fbbc04;font-size:20px;letter-spacing:1px}
+.g-sub{font-size:13px;color:#5f6368}
+.g-go{font-weight:700;color:#1a73e8;font-size:14px;white-space:nowrap}
+section.s{padding-block:72px;scroll-margin-top:56px}
+section.s.alt{background:var(--alt)}
+.sh{display:grid;gap:8px;padding-bottom:6px}
+.sh .tag2{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-weight:800;font-size:14px;letter-spacing:.04em}
+.sh .tag2::before{content:"";width:28px;height:3px;border-radius:2px;background:var(--accent)}
+.sh h2{font-size:34px;margin:0}
+.nav a.on{background:var(--soft);color:var(--accent)}
+section.s .wrap{display:grid;gap:22px}
+/* how */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.step{border-top:3px solid var(--accent);padding-top:12px}
+.step h3{margin-bottom:4px}
+.step p{color:var(--muted);font-size:15px}
+.checks{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--ink);font-weight:600}
+.checks span::before{content:"✓ ";color:var(--good);font-weight:800}
+/* offer */
+.offer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card .kind{font-size:13px;color:var(--muted);font-weight:700}
+.card .price{font-family:var(--display);font-size:24px;color:var(--strong)}
+.card p{color:var(--muted);font-size:15px}
+.card.boost .price{color:var(--boost)}
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:28px;align-items:start}
+.picker input[type=search]{width:100%;font:inherit;font-size:18px;padding:12px 14px;border:2px solid var(--accent);border-radius:12px;background:var(--card);color:var(--ink);outline:none}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;min-height:32px}
+.tag{display:inline-flex;align-items:center;gap:2px;background:var(--soft);border-radius:999px;padding:4px 6px 4px 12px;font-weight:700;font-size:14px}
+.tag button{background:none;border:0;cursor:pointer;color:var(--muted);font-size:16px;padding:0 6px}
+.list{list-style:none;padding:0;margin-top:10px;border-top:1px solid var(--line);max-height:420px;overflow-y:auto}
+.list li{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line)}
+.list .he{font-weight:700}.list .en{color:var(--muted);font-size:13px;direction:ltr;unicode-bidi:isolate}
+.list .pr{margin-right:auto;text-align:left;white-space:nowrap;font-variant-numeric:tabular-nums}
+.list .pr b{color:var(--strong)}.list .pr small{display:block;color:var(--boost);font-weight:700;font-size:12px}
+.pick{flex:none;border:1.5px solid var(--accent);border-radius:8px;background:transparent;color:var(--accent);font-weight:700;font-size:13px;padding:5px 10px;cursor:pointer}
+.pick[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.result{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);border:2px solid var(--accent);border-radius:16px;padding:18px;display:grid;gap:14px;background:var(--card)}
+.result label{font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.result input[type=range]{width:100%;accent-color:var(--accent)}
+.opt{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.opt.win{border:2px solid var(--good)}
+.opt .t{font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.opt .v{font-family:var(--display);font-size:26px;color:var(--strong);font-variant-numeric:tabular-nums}
+.opt .d{color:var(--muted);font-size:14px}
+.win-badge{color:var(--good);font-size:13px;font-weight:800}
+.waste{height:12px;border-radius:6px;background:var(--soft);overflow:hidden;display:flex;margin-top:6px}
+.waste i{display:block;background:var(--accent)}
+.small{color:var(--muted);font-size:13px}
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;min-width:480px}
+th,td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th{font-size:14px;color:var(--muted);background:var(--soft)}
+td.p{font-weight:700;color:var(--strong)}
+tr:last-child td{border-bottom:0}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fact h3{font-size:16px;margin-bottom:2px}.fact p{color:var(--muted);font-size:15px}
+/* portal mock */
+.mock{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.mock .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--soft);font-weight:700}
+.mock .top span{color:var(--accent);font-size:14px}
+.mrow{display:grid;grid-template-columns:minmax(0,1.4fr) auto minmax(0,1fr);gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.mrow .n{font-weight:700}.mrow .m{color:var(--muted);font-size:13px;direction:ltr;text-align:right}
+.pill{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--good);white-space:nowrap}
+.pill.off{color:var(--muted)}
+.mrow .ic{color:var(--muted);font-size:13px;direction:ltr;text-align:left;font-variant-numeric:tabular-nums}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.contact{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;font-size:18px}
+.contact b{font-family:var(--display);font-size:26px}
+footer{padding-block:28px 40px;color:var(--muted);font-size:13px;line-height:1.7}
+@media (max-width:900px){.hero h1{font-size:34px}.stats,.steps,.offer{grid-template-columns:repeat(2,minmax(0,1fr))}.calc,.two{grid-template-columns:minmax(0,1fr)}.result{position:static}.feats{grid-template-columns:repeat(2,minmax(0,1fr))}.nav{display:none}}
+@media (max-width:520px){.hero h1{font-size:28px}h2{font-size:24px}.steps,.offer,.feats,.facts{grid-template-columns:minmax(0,1fr)}.stat b{font-size:22px}.mrow{grid-template-columns:minmax(0,1fr) auto}.mrow .ic{display:none}}
+.worries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.worries .card h3{font-size:19px}
+.svc{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
+.rating{display:grid;gap:6px;justify-items:start;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px}
+.rating .big{font-family:var(--display);font-size:64px;line-height:1;color:var(--ink)}
+.rating .stars{font-size:28px}
+.svc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.hero .gcard{justify-self:start}
+section.closing{background:var(--band);color:var(--band-ink)}
+section.closing .lead{color:var(--band-ink);opacity:.85}
+section.closing .tag2{color:var(--band-ink)}section.closing .tag2::before{background:var(--band-ink)}
+.contact .wa{background:#ffffff;color:#2e1065;font-weight:800;text-decoration:none;padding:10px 18px;border-radius:12px;font-size:16px}
+@media (max-width:900px){.worries{grid-template-columns:repeat(2,minmax(0,1fr))}.svc{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.worries,.svc-list{grid-template-columns:minmax(0,1fr)}}
+.gbv{font-family:var(--display);font-size:22px;color:var(--strong)}
+.gbctl{display:flex;align-items:center;gap:10px}
+.gbctl input[type=range]{flex:1;min-width:0;height:36px;accent-color:var(--accent);cursor:pointer}
+.step-b{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--accent);background:var(--card);color:var(--accent);font-size:22px;font-weight:800;cursor:pointer;line-height:1}
+.step-b:hover{background:var(--soft)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.pre{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px;font-weight:700;cursor:pointer}
+.pre:hover{border-color:var(--accent)}
+.pre.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.opts{display:grid;gap:14px}
+.fit{font-weight:700;font-size:18px;opacity:1}
+.cta{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.cta .wa{background:#ffffff;color:#2e1065;font-weight:800;text-decoration:none;padding:12px 22px;border-radius:12px;font-size:17px}
+.cta .tel{color:inherit;font-family:var(--display);font-size:20px;text-decoration:none}
+.cta .human{opacity:.85;font-size:15px}
+.telb{color:inherit;text-decoration:none}
+.faq{display:grid;gap:10px;max-width:820px}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 18px}
+.faq summary{cursor:pointer;font-weight:700;font-size:17px;padding:15px 0;color:var(--strong)}
+.faq details p{color:var(--muted);padding:0 0 16px;margin:0}
+</style>
+</head><body>
+
+<header class="bar"><div class="wrap">
+<div class="logo">Sim<b>TLV</b></div>
+<nav class="nav" aria-label="ניווט"><a href="#calm">בלי כאב ראש</a><a href="#service">שירות</a><a href="#how">איך זה עובד</a><a href="#portal">מערכת ניהול</a><a href="#pricing">מחירים</a><a href="#addons">תוספות</a><a href="#calc">מחשבון</a><a href="#faq">שאלות</a><a href="#contact">דברו איתנו</a></nav>
+<div class="cur" role="group" aria-label="מטבע"><button type="button" data-c="USD" aria-pressed="true">$ דולר</button><button type="button" data-c="ILS" aria-pressed="false">₪ שקל</button></div>
+</div></header>
+
+<div class="hero"><div class="wrap">
+<div class="eyebrow">SimTLV · החטיבה העסקית</div>
+<h1>העובדים נוחתים, והאינטרנט כבר עובד.</h1>
+<p>אנחנו מנפיקים לכל עובד eSIM או סים פיזי שעובד ב-<span id="hCount"></span> מדינות. הקו מוכן תוך שניות, מתקינים אותו פעם אחת, ומשם לא צריך לחשוב עליו. בלי ניירת, בלי החזרי הוצאות ובלי חשבונות נדידה, ואנחנו זמינים לעובדים שלכם 7 ימים בשבוע.</p>
+<p class="fit">מתאים לחברות עם <span class="num">50</span> טיסות עובדים בשנה ומעלה.</p>
+<div class="cta"><a class="wa" href="https://wa.me/972512274657" target="_blank" rel="noopener">דברו איתנו בוואטסאפ</a><a class="tel" href="tel:+972512274657"><span class="num">051-227-4657</span></a><span class="human">עונה לכם אדם, לא בוט.</span></div>
+<a class="gcard" href="https://www.google.com/maps/place/SIMTLV/@32.8632782,35.1002138,986m/data=!3m1!1e3!4m8!3m7!1s0x151db18fc4a6529b:0x93ae9b1688ae3eb!8m2!3d32.8632782!4d35.1002138!9m1!1b1!16s%2Fg%2F11n093b9fy" target="_blank" rel="noopener">
+<span class="g-logo" aria-hidden="true"><b style="color:#4285f4">G</b><b style="color:#ea4335">o</b><b style="color:#fbbc05">o</b><b style="color:#4285f4">g</b><b style="color:#34a853">l</b><b style="color:#ea4335">e</b></span>
+<span class="g-main"><span class="g-name">SIMTLV · ביקורות בגוגל</span><span class="g-row"><b class="num">5.0</b><span class="stars" aria-label="5 כוכבים">★★★★★</span><span><span class="num">3,391</span> ביקורות</span></span><span class="g-sub">נכון ל-<span class="num">23.11.2026</span></span></span>
+<span class="g-go">לביקורות ←</span>
+</a>
+<div class="stats">
+<div class="stat"><b><span class="num">5.0</span> ★</b><span>ממוצע הביקורות שלנו בגוגל</span></div>
+<div class="stat"><b>7 ימים</b><span>בשבוע, תמיכה ישירה לעובדים</span></div>
+<div class="stat"><b id="sCount"></b><span>מדינות, קו אחד לכולן</span></div>
+<div class="stat"><b>שניות</b><span>עד שקו חדש מוכן לעובד</span></div>
+</div>
+</div></div>
+
+<section class="s alt" id="calm"><div class="wrap">
+<div class="sh"><span class="tag2">מה יורד לכם מהראש</span><h2>כל מה שהיה מסובך בנסיעות עבודה, כבר מטופל</h2><p class="lead">אתם שולחים עובדים לחו״ל כדי שיעבדו, לא כדי שיתעסקו בסימים, בקבלות ובחשבונות. זה החלק שאנחנו לוקחים.</p></div>
+<div class="worries">
+<div class="card"><h3>בלי ניירת</h3><p>העובדים לא אוספים קבלות ולא מגישים החזרי הוצאות. כל החיובים יורדים מארנק חברה אחד, עם חשבונית לכל חיוב.</p></div>
+<div class="card"><h3>בלי הפתעות בחשבון</h3><p>אין תעריף חריגה ואין חשבון נדידה שמגיע חודש אחרי. כל גיגה באותו מחיר, ואפשר להגדיר תקרה לכל קו, או לעבוד בלי.</p></div>
+<div class="card"><h3>בלי לחפש סים בשדה</h3><p>הקו מותקן לפני הטיסה ומתחבר לבד בנחיתה לרשת מקומית שאנחנו עובדים איתה. העובד יוצא מהמטוס מחובר.</p></div>
+<div class="card"><h3>עובד נתקע בחו״ל?</h3><p>הוא כותב לנו בוואטסאפ ואנחנו עוזרים לו ישירות, 7 ימים בשבוע. אתם לא צריכים להיות באמצע.</p></div>
+<div class="card"><h3>עובד עזב או איבד טלפון?</h3><p>קליק אחד במערכת והקו מושהה. קליק נוסף והוא חוזר לעבוד.</p></div>
+<div class="card"><h3>בלי התחייבות</h3><p>אין חוזה ואין דמי מנוי על הקו. משלמים רק על מה שהעובדים משתמשים בפועל.</p></div>
+</div>
+</div></section>
+
+<section class="s" id="service"><div class="wrap">
+<div class="sh"><span class="tag2">שירות</span><h2>שירות שמטפל בעובדים שלכם, לא רק בחשבון</h2><p class="lead">עובדות איתנו חברות טכנולוגיה, מכשור רפואי, תעשייה ותיירות.</p></div>
+<div class="svc">
+<a class="rating" href="https://www.google.com/maps/place/SIMTLV/@32.8632782,35.1002138,986m/data=!3m1!1e3!4m8!3m7!1s0x151db18fc4a6529b:0x93ae9b1688ae3eb!8m2!3d32.8632782!4d35.1002138!9m1!1b1!16s%2Fg%2F11n093b9fy" target="_blank" rel="noopener">
+<span class="big num">5.0</span><span class="stars">★★★★★</span><span>ממוצע של <span class="num">3,391</span> ביקורות בגוגל</span><span class="g-go">לקריאת הביקורות ←</span></a>
+<div class="svc-list">
+<div class="fact"><h3>זמינים 7 ימים בשבוע, בוואטסאפ</h3><p>גם בסוף השבוע. העובד כותב, ומקבל תשובה מאדם.</p></div>
+<div class="fact"><h3>עוזרים לעובד ישירות</h3><p>העובד פונה אלינו בעצמו, גם כשהוא כבר בחו״ל, ואנחנו פותרים איתו את הבעיה. מנהל הנסיעות לא צריך לתווך.</p></div>
+<div class="fact"><h3>קו מוכן מיד</h3><p>גם eSIM וגם סים פיזי מוכנים לשימוש מיד. נסיעה ברגע האחרון היא לא בעיה.</p></div>
+<div class="fact"><h3>מעקב בזמן אמת</h3><p>רואים במערכת כמה כל קו גלש ובאיזו מדינה, כבר במהלך הנסיעה, ומקבלים התראות למייל.</p></div>
+</div>
+</div>
+</div></section>
+
+<section class="s alt" id="how"><div class="wrap">
+<div class="sh"><span class="tag2">איך זה עובד</span><h2>מתקינים פעם אחת, וזה עובד בכל נסיעה</h2></div>
+<div class="steps">
+<div class="step"><h3>פותחים קו לכל עובד</h3><p>רושמים במערכת שם ואימייל, והקו מוכן תוך שניות. ה-eSIM נשלח לעובד במייל. למי שמעדיף או שהמכשיר לא תומך, יש גם סים פיזי.</p></div>
+<div class="step"><h3>מתקינים לפני הטיסה</h3><p>סורקים QR פעם אחת במכשיר. אותו קו משמש את העובד בכל הנסיעות הבאות.</p></div>
+<div class="step"><h3>נוחתים ומתחברים</h3><p>בלי להחליף כרטיס ובלי להגדיר כלום בנחיתה. הקו מתחבר לבד לרשת מקומית שאנחנו עובדים איתה.</p></div>
+<div class="step"><h3>עוקבים מהמשרד</h3><p>כל הקווים, השימוש והחיובים נמצאים במערכת אחת, והתראות שימוש מגיעות במייל.</p></div>
+</div>
+</div></section>
+
+<section class="s" id="portal"><div class="wrap">
+<div class="sh"><span class="tag2">מערכת ניהול</span><h2>כל הקווים של החברה במקום אחד</h2><p class="lead">ממשק בעברית או באנגלית, חיפוש לפי עובד, ICCID או מדינה, סינון לפי סטטוס וייצוא לקובץ.</p></div>
+<div class="mock" aria-label="דוגמה למסך המערכת, שמות לדוגמה">
+<div class="top">כרטיסי SIM <span>+ הוספת SIM חדש</span></div>
+<div class="mrow"><div><div class="n">נועה לוי</div><div class="m">noa@company.co.il</div></div><span class="pill">פעיל · לפי שימוש</span><div class="ic">8948 •••• •••• 4821</div></div>
+<div class="mrow"><div><div class="n">איתי ברק</div><div class="m">itay@company.co.il</div></div><span class="pill">פעיל · GigaBoost</span><div class="ic">8948 •••• •••• 7305</div></div>
+<div class="mrow"><div><div class="n">מיכל שגיא</div><div class="m">michal@company.co.il</div></div><span class="pill off">מושהה · לפי שימוש</span><div class="ic">8948 •••• •••• 1196</div></div>
+</div>
+<div class="feats">
+<div class="fact"><h3>פתיחת קו תוך שניות</h3><p>רושמים שם ואימייל, וה-eSIM נשלח לעובד אוטומטית.</p></div>
+<div class="fact"><h3>השהיה והפעלה בקליק</h3><p>עובד עזב או שהמכשיר אבד? קליק אחד והקו מושהה.</p></div>
+<div class="fact"><h3>תקרת גיגה לכל קו, אופציונלית</h3><p>הקו נעצר כשמגיעים לתקרה. אפשר גם לעבוד בלי תקרה.</p></div>
+<div class="fact"><h3>שימוש בזמן אמת</h3><p>רואים כמה כל קו גלש, באיזו מדינה ובכמה, כבר במהלך הנסיעה.</p></div>
+<div class="fact"><h3>ארנק וחשבוניות</h3><p>יתרת הארנק, פירוט לפי עובד ומדינה, וחשבונית לכל חיוב.</p></div>
+<div class="fact"><h3>התראות במייל</h3><p>התראות שימוש והתקרבות לתקרה מגיעות לבד למייל.</p></div>
+</div>
+</div></section>
+
+<section class="s alt" id="pricing"><div class="wrap">
+<div class="sh"><span class="tag2">מחירים</span><h2>מחירים פשוטים, בלי אותיות קטנות</h2><p class="lead">שתי אפשרויות תשלום, ותוספות לפי הצורך. כל גיגה באותו מחיר, ומה שלא נוצל נשאר בארנק החברה לנסיעה הבאה.</p></div>
+<div class="offer">
+<div class="card"><div class="kind">מסלול גלישה</div><h3>תשלום לפי שימוש</h3><div class="price"><span id="oMin"></span> <small>לגיגה</small></div><p>משלמים רק על מה שהעובד גלש בפועל. מתאים כשקשה לדעת מראש כמה הוא יגלוש.</p></div>
+<div class="card boost"><div class="kind">מסלול גלישה</div><h3>GigaBoost</h3><div class="price">מ-<span id="oBoost"></span></div><p>חבילות סגורות ל-30 יום לעובדים עם שימוש כבד. כשהחבילה נגמרת, הקו עובר אוטומטית לתשלום לפי שימוש.</p></div>
+<div class="card"><div class="kind">תוספת לקו</div><h3>מספר ישראלי</h3><div class="price"><span class="num">₪15</span> <small>ל-30 יום</small></div><p>שיחות נכנסות ללא הגבלה, בלי לוותר על הקו הישראלי של העובד. רוצים גם 200 דקות יוצאות? עוד <span class="num">₪20</span>.</p></div>
+<div class="card"><div class="kind">סוג הסים</div><h3>eSIM או סים פיזי</h3><div class="price"><span class="num">₪29</span> <small>לסים פיזי</small></div><p>eSIM נשלח לעובד במייל. שניהם מוכנים לשימוש מיד.</p></div>
+</div>
+<div class="facts">
+<div class="fact"><h3>אין תעריף חריגה</h3><p>כל גיגה עולה אותו דבר, גם הגיגה העשירית.</p></div>
+<div class="fact"><h3 id="exT"></h3><p id="exP"></p></div>
+</div>
+<h3 style="margin-top:8px">GigaBoost: חבילות ל-30 יום</h3>
+<div class="tbl"><table id="boostT"></table></div>
+<p class="small">חבילה לכמה מדינות מתומחרת לפי המדינה היקרה ביותר בה. אחרי שחבילה התחילה אי אפשר לשנות או להקפיא אותה, רק להטעין חבילה חדשה.</p>
+</div></section>
+
+<section class="s" id="addons"><div class="wrap">
+<div class="sh"><span class="tag2">תוספות</span><h2>מספר ישראלי, גם בחו״ל</h2><p class="lead">העובד מקבל מספר נוסף, ומקבל ומוציא שיחות דרך האפליקציה שלנו. המחירים ל-30 יום, בשקלים.</p></div>
+<div class="two">
+<div style="display:grid;gap:12px">
+<div class="tbl"><table style="min-width:0"><tr><th>מה כולל</th><th>מחיר</th></tr>
+<tr><td>שיחות נכנסות ללא הגבלה, בלי לוותר על הקו הישראלי של העובד</td><td class="p"><span class="num">₪15</span></td></tr>
+<tr><td>200 דקות יוצאות לישראל ומקומיות, בנוסף</td><td class="p">עוד <span class="num">₪20</span></td></tr>
+<tr><td><b>הכול יחד</b></td><td class="p"><span class="num">₪35</span></td></tr></table></div>
+<p class="small"><b>עקוב אחרי:</b> אפשר להפנות שיחות מהמספר הרגיל של העובד למספר החדש, וככה לקבל את כל השיחות כרגיל בחו״ל. צריך להגדיר את זה לפני שיוצאים מהארץ. אי אפשר להפנות הודעות SMS.</p>
+</div>
+<div class="facts">
+<div class="fact"><h3>רק בשילוב חבילת אינטרנט שלנו</h3><p>המספר לא נמכר בנפרד.</p></div>
+<div class="fact"><h3>דקות נוספות</h3><p>אפשר להטעין דקות גם אחרי ההזמנה. עלות שיחה לשאר העולם: <a href="https://simtlv.co.il/min-cost" target="_blank" rel="noopener">simtlv.co.il/min-cost</a></p></div>
+<div class="fact"><h3>לטווח ארוך</h3><p>אפשר להאריך את המספר מעבר ל-30 יום.</p></div>
+<div class="fact"><h3>מספר אמריקאי או בריטי</h3><p>יש גם. פרטים לפי בקשה.</p></div>
+<div class="fact"><h3>החזרים</h3><p>לא ניתן לבטל מספר שהונפק, ולכן אין עליו החזר.</p></div>
+<div class="fact"><h3>סים פיזי</h3><p><span class="num">₪29</span> לכרטיס, תשלום חד פעמי.</p></div>
+</div>
+</div>
+</div></section>
+
+<section class="s alt" id="calc"><div class="wrap">
+<div class="sh"><span class="tag2">מחשבון</span><h2>בדקו מחיר ליעד שלכם</h2><p class="lead">בחרו מדינה אחת או כמה, וכמה גיגה העובד צפוי לגלוש. נראה לכם את שתי האפשרויות זו מול זו.</p></div>
+<div class="calc">
+<div class="picker">
+<input id="q" type="search" dir="auto" placeholder="חיפוש מדינה, למשל USA או גרמניה" aria-label="חיפוש מדינה" autocomplete="off">
+<div class="tags" id="tags"></div>
+<ul class="list" id="list"></ul>
+</div>
+<div class="result" id="result" aria-live="polite"></div>
+</div>
+</div></section>
+
+<section class="s" id="faq"><div class="wrap">
+<div class="sh"><span class="tag2">שאלות</span><h2>שאלות שחברות שואלות אותנו</h2></div>
+<div class="faq">
+<details><summary>זה במקום חברת הסלולר שלנו, או בנוסף?</summary><p>בנוסף. הקו הישראלי של העובד נשאר כמו שהוא, והקו שלנו נותן לו אינטרנט בחו״ל.</p></details>
+<details><summary>העובד שומר על המספר שלו?</summary><p>כן. הקו שלנו הוא קו גלישה, והמספר הישראלי נשאר אצל העובד. מי שרוצה לקבל גם שיחות רגילות בחו״ל יכול להוסיף מספר ישראלי עם עקוב אחרי, כמו שמוסבר <a href="#addons">בתוספות</a>.</p></details>
+<details><summary>ומה עם טלפון שלא תומך ב-eSIM?</summary><p>יש גם סים פיזי, <span class="num">₪29</span> לכרטיס בתשלום חד פעמי. הוא מוכן לשימוש מיד, בדיוק כמו ה-eSIM.</p></details>
+<details><summary>כל עובד צריך יתרה משלו?</summary><p>לא. טוענים ארנק חברה אחד, וכל הקווים גולשים ממנו. במערכת רואים כמה כל קו צרך ובאיזו מדינה.</p></details>
+<details><summary>העובד צריך להתקין אפליקציה?</summary><p>לגלישה לא. מתקינים את ה-eSIM פעם אחת וזהו. האפליקציה נדרשת רק למי שלוקח מספר ישראלי לשיחות.</p></details>
+<details><summary>יש לכם טופס פתיחת ספק או שאלון אבטחת מידע?</summary><p>שלחו לנו ונמלא. טופס ספק, אישור ניהול ספרים, ניכוי מס במקור ושאלון אבטחת מידע, אנחנו מכירים את התהליך. על כל חיוב יוצאת חשבונית.</p></details>
+<details><summary>יש מינימום?</summary><p>השירות העסקי מיועד לחברות עם <span class="num">50</span> טיסות עובדים בשנה ומעלה. לחברות קטנות יותר ולנוסעים פרטיים יש את האפליקציה שלנו, עם אותן רשתות: <a href="https://simtlv.co.il" target="_blank" rel="noopener">simtlv.co.il</a></p></details>
+</div>
+</div></section>
+
+<section class="s closing" id="contact"><div class="wrap">
+<div class="sh"><span class="tag2">דברו איתנו</span><h2>רוצים לראות איך זה יעבוד אצלכם?</h2><p class="lead">כתבו לנו בוואטסאפ או התקשרו, ונעבור יחד על הנסיעות שלכם ועל מה שמתאים לכם. עונה לכם אדם.</p></div>
+<div class="contact"><div>החטיבה העסקית, בוואטסאפ או בטלפון:</div><a class="telb" href="tel:+972512274657"><b class="num">051-227-4657</b></a><a class="wa" href="https://wa.me/972512274657" target="_blank" rel="noopener">פתיחת שיחה בוואטסאפ</a></div>
+</div></section>
+
+<footer><div class="wrap">
+<span id="curnote"></span> המחירים עודכנו ב-<span class="num" id="pdate">23.11.2026</span>, ומחירי התוספות בשקלים. <span class="num">SimTLV · v2.2 · November 2026</span>
+</div></footer>
+
+<script>
+var RATE=3,EMBED={"c": [["אוקראינה", "Ukraine", "UA", 1.99, 1], ["מונטנגרו", "Montenegro", "ME", 1.99, 1], ["לוקסמבורג", "Luxembourg", "LU", 2.19, 1], ["לטביה", "Latvia", "LV", 2.19, 1], ["מלטה", "Malta", "MT", 2.21, 1], ["אסטוניה", "Estonia", "EE", 2.27, 1], ["קרואטיה", "Croatia", "HR", 2.29, 1], ["סלובקיה", "Slovakia", "SK", 2.3, 1], ["פולין", "Poland", "PL", 2.31, 1], ["ליכטנשטיין", "Liechtenstein", "LI", 2.32, 1], ["סלובניה", "Slovenia", "SI", 2.39, 1], ["פורטוגל", "Portugal", "PT", 2.39, 1], ["רומניה", "Romania", "RO", 2.39, 1], ["טורקיה", "Turkey", "TR", 2.4, 1], ["ליטא", "Lithuania", "LT", 2.4, 1], ["קפריסין הטורקית", "Northern Cyprus", "CYP", 2.4, 1], ["יוון", "Greece", "GR", 2.43, 1], ["אוסטריה", "Austria", "AT", 2.44, 1], ["איסלנד", "Iceland", "IS", 2.44, 1], ["אירלנד", "Ireland", "IE", 2.44, 1], ["אנגליה", "United Kingdom", "GB", 2.44, 1], ["בולגריה", "Bulgaria", "BG", 2.44, 1], ["בלגיה", "Belgium", "BE", 2.44, 1], ["דנמרק", "Denmark", "DK", 2.44, 1], ["האיים הקנריים", "Canary Islands", "IC", 2.44, 1], ["נורווגיה", "Norway", "NO", 2.44, 1], ["ספרד", "Spain", "ES", 2.44, 1], ["סקוטלנד", "Scotland", "GB-SCT", 2.44, 1], ["פינלנד", "Finland", "FI", 2.44, 1], ["צכיה", "Czech Republic", "CZ", 2.44, 1], ["צפון אירלנד", "Northern Ireland", "GB-NIR", 2.44, 1], ["שבדיה", "Sweden", "SE", 2.44, 1], ["אוזבקיסטן", "Uzbekistan", "UZ", 2.4595, 2], ["ניו זילנד", "New Zealand", "NZ", 2.4595, 2], ["קזחסטן", "Kazakhstan", "KZ", 2.4595, 2], ["קירגיסטן", "Kyrgyzstan", "KG", 2.4595, 2], ["רוסיה", "Russian Federation", "RU", 2.4595, 2], ["מולדובה", "Moldova", "MD", 2.46, 1], ["סרביה", "Serbia", "RS", 2.46, 1], ["אלבניה", "Albania", "AL", 2.47, 1], ["גרמניה", "Germany", "DE", 2.49, 1], ["הולנד", "Netherlands", "NL", 2.49, 1], ["הונגריה", "Hungary", "HU", 2.49, 1], ["שוויץ", "Switzerland", "CH", 2.49, 1], ["קפריסין", "Cyprus", "CY", 2.51, 1], ["איטליה", "Italy", "IT", 2.52, 1], ["ארצות הברית", "United States", "US", 2.52, 2], ["הוואי", "Hawaii", "US-HI", 2.52, 2], ["וותיקן", "Vatican", "VA", 2.52, 1], ["ישראל", "Israel", "IL", 2.52, 2], ["צרפת", "France", "FR", 2.52, 1], ["תאילנד", "Thailand", "TH", 2.52, 2], ["ארמניה", "Armenia", "AM", 2.5243, 2], ["פקיסטן", "Pakistan", "PK", 2.6989, 2], ["אינדונזיה", "Indonesia", "ID", 2.7942, 2], ["בנגלדש", "Bangladesh", "BD", 2.83, 1], ["בלארוס", "Belarus", "BY", 2.89, 2], ["מלזיה", "Malaysia", "MY", 2.98, 2], ["דרום קוריאה", "South Korea", "KR", 3.04, 2], ["אלגריה", "Algeria", "DZ", 3.17, 3], ["כוויית", "Kuwait", "KW", 3.2105, 3], ["פיליפינים", "Philippines", "PH", 3.4433, 3], ["תוניסיה", "Tunisia", "TN", 3.4567, 3], ["אוסטרליה", "Australia", "AU", 3.56, 4], ["דרום אפריקה", "South Africa", "ZA", 3.56, 10], ["גאורגיה", "Georgia", "GE", 3.58, 2], ["מצרים", "Egypt", "EG", 3.7, 2], ["אקוודור", "Ecuador", "EC", 3.78, 7], ["ראוניון", "Reunion", "RE", 3.806, 2], ["אורוגוואי", "Uruguay", "UY", 3.85, 7], ["בוסניה והרצגובינה", "Bosnia and Herzegovina", "BA", 3.8984, 3], ["טיוואן", "Taiwan", "TW", 4.0572, 4], ["מקדוניה הצפונית", "Macedonia", "MK", 4.0643, 3], ["קמבודיה", "Cambodia", "KH", 4.07, 4], ["סרי לנקה", "Sri Lanka", "LK", 4.09, 3], ["הונג קונג", "Hong Kong", "HK", 4.25, 4], ["קטאר", "Qatar", "QA", 4.27, 4], ["טגיקיסטן", "Tajikistan", "TJ", 4.35, 2], ["סינגפור", "Singapore", "SG", 4.4, 3], ["בחריין", "Bahrain", "BH", 4.4453, 4], ["עומאן", "Oman", "OM", 4.5, 4], ["אזארביגאן", "Azerbaijan", "AZ", 4.52, 5], ["איי פארו", "Faroe Islands", "FO", 4.657, 4], ["מרוקו", "Morocco", "MA", 4.83, 5], ["ברזיל", "Brazil", "BR", 4.99, 6], ["אנדורה", "Andorra", "AD", 5.0295, 3], ["קנדה", "Canada", "CA", 5.15, 5], ["הודו", "India", "IN", 5.4, 6], ["ויאטנם", "Vietnam", "VN", 5.51, 6], ["גיאנה הצרפתית", "French Guiana", "GF", 5.54, 6], ["צילה", "Chile", "CL", 5.54, 5], ["ארגנטינה", "Argentina", "AR", 5.5813, 9], ["יפן", "Japan", "JP", 5.69, 5], ["קולומביה", "Colombia", "CO", 5.88, 6], ["גיברלטר", "Gibraltar", "GI", 5.9828, 7], ["איחוד האמירויות הערביות - דובאי/אבו דאבי", "United Arab Emirates", "AE", 5.99, 6], ["ערב הסעודית", "Saudi Arabia", "SA", 5.99, 8], ["לאוס", "Laos", "LA", 6.34, 6], ["עירק", "Iraq", "IQ", 6.615, 7], ["מקסיקו", "Mexico", "MX", 7.58, 9], ["מונגוליה", "Mongolia", "MN", 8.05, 10], ["ניגריה", "Nigeria", "NG", 8.05, 9], ["פרגוואי", "Paraguay", "PY", 8.25, 10], ["אתיופיה", "Ethiopia", "ETH", 8.34, 8], ["קוסטה ריקה", "Costa Rica", "CR", 8.35, 9], ["סנט וינסנט והגרנדינים", "Saint Vincent and Grenadines", "VC", 8.99, 12], ["סנט לוסיה", "Saint Lucia", "LC", 8.99, 12], ["סנט קיטס ונוויס", "Saint Kitts and Nevis", "KN", 8.99, 12], ["סנט תומאס", "Saint Thomas", "VI", 8.99, 12], ["סין", "China", "CN", 9.13, 7], ["איי טרקס וקייקוס", "Turks and Caicos Islands", "TC", 9.15, 12], ["גוואדלופ", "Guadeloupe", "GP", 9.23, 2], ["בנין", "Benin", "BJ", 9.49, 9], ["פרו", "Peru", "PE", 9.52, 10], ["בוליביה", "Bolivia", "BO", 9.7, 13], ["קניה", "Kenya", "KE", 9.7902, 9], ["פנמה", "Panama", "PA", 9.85, 12], ["מדגסקאר", "Madagascar", "MG", 10.0548, 6], ["הונדורס", "Honduras", "HN", 10.1, 13], ["זמביה", "Zambia", "ZM", 10.2735, 9], ["נפאל", "Nepal", "NP", 10.31, 9], ["טנזניה - הרפובליקה המאוחדת", "Tanzania", "TZ", 10.46, 9], ["אוגנדה", "Uganda", "UG", 10.5487, 10], ["רואנדה", "Rwanda", "RW", 10.82, 10], ["הרפובליקה הדומיניקנית", "Dominican Republic", "DO", 10.95, 5], ["גאבון", "Gabon", "GA", 11.0074, 10], ["מלאווי", "Malawi", "MW", 11.0074, 10], ["צאד", "Chad", "TD", 11.0074, 10], ["קונגו", "Congo Republic", "CG", 11.1908, 10], ["אפגניסטן", "Afghanistan", "AF", 11.3602, 15], ["איראן", "Iran", "IR", 11.4, 15], ["אל סלבדור", "El Salvador", "SV", 11.68, 11], ["איי הבהאמה", "Bahamas", "BS", 11.75, 15], ["מקאו", "Macao China", "MO", 11.77, 10], ["ניגריה", "Niger", "NE", 11.9246, 10], ["מאוריציוס", "Mauritius", "MU", 11.9529, 10], ["ירדן", "Jordan", "JO", 12.15, 13], ["האנטילים ההולנדיים", "Netherlands Antilles", "AN", 12.2492, 11], ["מונסראט", "Montserrat", "MS", 12.5773, 11], ["ג'מייקה", "Jamaica", "JM", 12.6867, 11], ["פורטו ריקו", "Puerto Rico", "PR", 12.83, 12], ["איי קיימן", "Cayman Islands", "KY", 12.9054, 11], ["אנגווילה", "Anguilla", "AI", 12.9054, 11], ["ברבדוס", "Barbados", "BB", 12.9054, 11], ["האיים המלדיביים", "Maldives", "MV", 13.05, 15], ["ונצואלה", "Venezuela", "VE", 13.06, 15], ["איי הבתולה הבריטיים", "British Virgin Islands", "VG", 13.1242, 12], ["אנטיגואה וברבודה", "Antigua and Barbuda", "AG", 13.1242, 12], ["גרנדה", "Grenada", "GD", 13.1242, 12], ["דומיניקה", "Dominica", "DM", 13.1242, 12], ["קוסובו", "Kosovo", "XK", 13.79, 12], ["גואטמלה", "Guatemala", "GT", 13.91, 12], ["פפואה גינאה החדשה", "Papua New Guinea", "PG", 14.4, 14], ["ניקרגואה", "Nicaragua", "NI", 15.42, 14], ["סנגל", "Senegal", "SN", 15.55, 16], ["קובה", "Cuba", "CU", 19, 19], ["סודן", "Sudan", "SD", 20.3, 17], ["בליז", "Belize", "BZ", 22.65, 16], ["מונקו", "Monaco", "MC", 26.1, 18], ["גיאנה", "Guyana", "GY", 26.55, 18], ["פולינזיה הצרפתית", "French Polynesia", "PF", 26.55, 19], ["טרינידד וטובגו", "Trinidad and Tobago", "TT", 26.6, 18], ["כף ורדה", "Cape Verde", "CV", 26.6, 12], ["סורינאם", "Suriname", "SR", 26.6, 18], ["קוראסאו", "Curacao", "CW", 26.6, 18], ["ברמודה", "Bermuda", "BM", 27, 19], ["מוזמביק", "Mozambique", "MZ", 27.75, 19], ["סמואה", "Samoa", "EH", 38.18, 18], ["גאנה", "Ghana", "GH", 44, 18]], "p": {"1": [[1, 2.99], [3, 7.99], [6, 11.99], [12, 20.99], [20, 31.49], [30, 41.99], [50, 55.99]], "2": [[1, 2.99], [3, 8.49], [6, 14.49], [12, 26.49], [20, 34.49], [30, 42.49], [50, 57.99]], "3": [[1, 3.99], [3, 11.49], [6, 17.99], [12, 31.49], [20, 48.49], [30, 58.49], [50, 75.49]], "4": [[1, 4.99], [3, 13.49], [6, 20.99], [12, 36.49], [20, 56.99], [30, 68.99], [50, 87.49]], "5": [[1, 4.99], [3, 14.49], [6, 21.99], [12, 39.49], [20, 62.49], [30, 78.99]], "6": [[1, 5.49], [3, 15.99], [6, 23.99], [12, 40.49], [20, 62.49], [30, 79.49]], "7": [[1, 5.99], [3, 16.99], [6, 25.49], [12, 42.99], [20, 65.49], [30, 86.49]], "8": [[1, 5.99], [3, 17.49], [6, 26.49], [12, 43.99], [20, 67.99], [30, 87.49]], "9": [[1, 6.99], [3, 19.99], [6, 31.99], [12, 50.49], [20, 75.99]], "10": [[1, 7.99], [3, 22.99], [6, 35.49], [12, 59.99], [20, 89.99]], "11": [[1, 8.49], [3, 24.49], [6, 38.99], [12, 67.49]], "12": [[1, 8.49], [3, 24.99], [6, 39.99], [12, 69.99]], "13": [[1, 8.49], [3, 24.99], [6, 40.49], [12, 72.49]], "14": [[1, 9.49], [3, 27.99], [6, 44.99], [12, 78.49]], "15": [[1, 10.99], [3, 31.49], [6, 49.49], [12, 85.49]], "16": [[1, 11.99], [3, 34.99], [6, 57.99], [12, 103.49]], "17": [[1, 14.49], [3, 42.49], [6, 66.49]], "18": [[1, 17.99], [3, 51.99], [6, 81.49]], "19": [[1, 24.99], [3, 72.99], [6, 120.49]]}, "d": "23.11.2026"},LIVE=true,API="https://app-link.simtlv.co.il";
+var NAME={AE:"איחוד האמירויות (דובאי)",TZ:"טנזניה",NE:"ניז'ר"};
+var ALIAS={AE:"UAE Dubai דובאי אמירויות",GB:"UK Britain England בריטניה לונדון",US:"USA US America אמריקה ארהב",DE:"Deutschland",KR:"Korea קוריאה",NL:"Holland",CZ:"Czechia",CH:"Swiss שווייץ",NE:"ניגר ניזר"};
+var CUR="USD";try{if(localStorage.getItem("cur")==="ILS")CUR="ILS"}catch(e){}
+var PK,D,SEL=["DE"],GB=4;
+function n(s){return (s||"").toLowerCase().replace(/[\s"'`״׳.\-()\/]/g,"")}
+function load(E){PK=E.p;D=E.c.map(function(c){var h=NAME[c[2]]||c[0],a=ALIAS[c[2]]||"";return {h:h,e:c[1],i:c[2],p:c[3],z:c[4],k:[n(h),n(c[0]),n(c[1]),n(c[2])].concat(a.split(" ").map(n))}}).sort(function(a,b){return a.h.localeCompare(b.h,"he")})}
+load(EMBED);
+function by(i){for(var k=0;k<D.length;k++)if(D[k].i===i)return D[k]}
+function money(u){return CUR==="ILS"?"₪"+(Math.round(u*RATE*100)/100).toFixed(2):"$"+(Math.round(u*100)/100).toFixed(2)}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function m(u){var s=el("span","num",money(u));return s}
+function $(id){return document.getElementById(id)}
+function fill(id,node){var e=$(id);e.textContent="";e.appendChild(node)}
+function minPk(z){var p=PK[z]||[];return p.length?Math.min.apply(null,p.map(function(x){return x[1]})):null}
+
+function statics(){
+ var minP=Math.min.apply(null,D.map(function(c){return c.p})),minB=Math.min.apply(null,Object.keys(PK).map(minPk).filter(function(x){return x!=null}));
+ $("hCount").textContent=$("sCount").textContent=D.length;
+ fill("oMin",m(minP));$("oMin").insertBefore(document.createTextNode("מ-"),$("oMin").firstChild);fill("oBoost",m(minB));
+ var de=by("DE");$("exT").textContent="דוגמה: שבוע בגרמניה";
+ var p=$("exP");p.textContent="עובד גלש 3.8 גיגה. החיוב: 3.8 × ";p.appendChild(m(de.p));p.appendChild(document.createTextNode(" = "));p.appendChild(m(3.8*de.p));p.appendChild(document.createTextNode(". בחבילה של 10 גיגה הייתם משלמים על כל החבילה."));
+ // GigaBoost table: Europe (Germany's zone), USA, USA + Mexico (the higher zone of the two).
+ var us=by("US"),mx=by("MX"),eu=de.z,cols=[["אירופה ("+D.filter(function(c){return c.z===eu}).length+" יעדים)",eu],["ארה״ב",us.z],["ארה״ב + מקסיקו",Math.max(us.z,mx.z)]];
+ var sizes=[];cols.forEach(function(c){(PK[c[1]]||[]).forEach(function(x){if(sizes.indexOf(x[0])<0)sizes.push(x[0])})});sizes.sort(function(a,b){return a-b});
+ var t=$("boostT");t.textContent="";var hr=el("tr");hr.appendChild(el("th",null,"חבילה"));cols.forEach(function(c){hr.appendChild(el("th",null,c[0]))});t.appendChild(hr);
+ sizes.forEach(function(s){var r=el("tr");r.appendChild(el("td",null,s+" גיגה"));cols.forEach(function(c){var f=(PK[c[1]]||[]).filter(function(x){return x[0]===s})[0];var td=el("td",f?"p":"",f?null:"אין");if(f)td.appendChild(m(f[1]));r.appendChild(td)});t.appendChild(r)});
+}
+
+function rank(c,s){var b=9;c.k.forEach(function(k){if(!k)return;var r=k===s?0:k.indexOf(s)===0?1:k.indexOf(s)>0?2:9;if(r<b)b=r});return b}
+function toggle(i){var k=SEL.indexOf(i);if(k<0){SEL.push(i);if($("q").value){$("q").value="";$("q").focus()}}else SEL.splice(k,1);drawList();drawResult()}
+function drawList(){
+ var s=n($("q").value),R=D;
+ if(s)R=D.map(function(c){return{c:c,r:rank(c,s)}}).filter(function(x){return x.r<9}).sort(function(a,b){return a.r-b.r}).map(function(x){return x.c});
+ var L=$("list");L.textContent="";
+ if(!R.length){L.appendChild(el("li",null,"לא מצאנו את המדינה הזאת. כתבו לנו בוואטסאפ ונבדוק."));}
+ R.forEach(function(c){var li=el("li"),d=el("div");d.appendChild(el("div","he",c.h));d.appendChild(el("div","en",c.e));li.appendChild(d);
+  var pr=el("div","pr"),b=el("b");b.appendChild(m(c.p));pr.appendChild(b);pr.appendChild(document.createTextNode(" לגיגה"));
+  var mb=minPk(c.z);if(mb!=null){var sm=el("small",null,"GigaBoost מ-");sm.appendChild(m(mb));pr.appendChild(sm)}li.appendChild(pr);
+  var on=SEL.indexOf(c.i)>=0,bt=el("button","pick",on?"✓ נבחרה":"+ הוספה");bt.type="button";bt.setAttribute("aria-pressed",on);bt.onclick=function(){toggle(c.i)};li.appendChild(bt);L.appendChild(li)});
+ var T=$("tags");T.textContent="";
+ SEL.map(by).forEach(function(c){var t=el("span","tag",c.h),x=el("button",null,"×");x.type="button";x.setAttribute("aria-label","הסרת "+c.h);x.onclick=function(){toggle(c.i)};t.appendChild(x);T.appendChild(t)});
+}
+function drawResult(){
+ var R=$("result");R.textContent="";
+ if(!SEL.length){R.appendChild(el("h3",null,"בחרו מדינה כדי לראות מחיר"));R.appendChild(el("p","small","אפשר לבחור כמה מדינות, ונחשב חבילה אחת שמכסה את כולן."));return}
+ R.appendChild(el("h3",null,SEL.map(by).map(function(c){return c.h}).join(", ")));
+ var lb=el("label");lb.setAttribute("for","gb");lb.appendChild(el("span",null,"כמה גיגה העובד יגלוש בנסיעה?"));var gv=el("span","gbv");lb.appendChild(gv);R.appendChild(lb);
+ var ctl=el("div","gbctl"),minus=el("button","step-b","−"),plus=el("button","step-b","+");minus.type=plus.type="button";
+ minus.setAttribute("aria-label","פחות גיגה");plus.setAttribute("aria-label","יותר גיגה");
+ var rg=el("input");rg.type="range";rg.id="gb";rg.min=1;rg.max=50;rg.step=1;rg.value=GB;
+ ctl.appendChild(minus);ctl.appendChild(rg);ctl.appendChild(plus);R.appendChild(ctl);
+ var pre=el("div","presets");[1,3,5,10,20,50].forEach(function(v){var b=el("button","pre",v+" גיגה");b.type="button";b.onclick=function(){set(v)};pre.appendChild(b)});R.appendChild(pre);
+ var opts=el("div","opts");R.appendChild(opts);
+ function set(v){GB=Math.max(1,Math.min(50,v));rg.value=GB;gv.textContent=GB+" גיגה";
+  pre.querySelectorAll(".pre").forEach(function(b){b.classList.toggle("on",parseInt(b.textContent,10)===GB)});drawOpts(opts)}
+ rg.addEventListener("input",function(){set(+rg.value)});
+ minus.onclick=function(){set(GB-1)};plus.onclick=function(){set(GB+1)};
+ set(GB);
+}
+function drawOpts(R){
+ R.textContent="";
+ var cs=SEL.map(by),top=cs.reduce(function(a,b){return b.z>a.z?b:a}),rate=Math.max.apply(null,cs.map(function(c){return c.p}));
+ var ppu=GB*rate,best=null;
+ // Best GigaBoost choice: a package, plus pay-per-use for anything above it (the line falls back automatically).
+ (PK[top.z]||[]).forEach(function(x){var cost=x[1]+Math.max(0,GB-x[0])*rate;if(!best||cost<best.cost)best={gb:x[0],price:x[1],cost:cost}});
+ var winB=best&&best.cost<ppu;
+ var o1=el("div","opt"+(winB?"":" win")),t1=el("div","t");t1.appendChild(el("span",null,"תשלום לפי שימוש"));if(!winB)t1.appendChild(el("span","win-badge","משתלם יותר"));o1.appendChild(t1);
+ var v1=el("div","v");v1.appendChild(m(ppu));o1.appendChild(v1);
+ var d1=el("div","d",GB+" גיגה × ");d1.appendChild(m(rate));d1.appendChild(document.createTextNode(cs.length>1?" לגיגה, לפי המדינה היקרה ברשימה. בפועל כל מדינה מחויבת במחיר שלה, אז זה המקסימום.":" לגיגה. מה שלא נוצל לא מחויב."));o1.appendChild(d1);R.appendChild(o1);
+ var o2=el("div","opt"+(winB?" win":"")),t2=el("div","t");t2.appendChild(el("span",null,"GigaBoost ל-30 יום"));if(winB)t2.appendChild(el("span","win-badge","משתלם יותר"));o2.appendChild(t2);
+ if(best){var v2=el("div","v");v2.appendChild(m(best.cost));o2.appendChild(v2);
+  var d2=el("div","d","חבילת "+best.gb+" גיגה ב-");d2.appendChild(m(best.price));
+  if(GB>best.gb){d2.appendChild(document.createTextNode(", ועוד "+(GB-best.gb)+" גיגה לפי שימוש אחרי שהחבילה נגמרת."));o2.appendChild(d2)}
+  else{var w=best.gb-GB;d2.appendChild(document.createTextNode(w?". "+w+" גיגה מהחבילה לא ינוצלו.":". החבילה מנוצלת עד הסוף."));o2.appendChild(d2);
+   var bar=el("div","waste"),i=el("i");i.style.width=(GB/best.gb*100)+"%";bar.appendChild(i);o2.appendChild(bar)}
+  if(cs.length>1)o2.appendChild(el("div","small","חבילה אחת לכל המדינות, מתומחרת לפי "+top.h+"."));
+ }else o2.appendChild(el("div","d","אין כרגע חבילת GigaBoost שמכסה את "+top.h+"."));
+ R.appendChild(o2);
+}
+function setCur(c){CUR=c;try{localStorage.setItem("cur",c)}catch(e){}
+ document.querySelectorAll(".cur button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-c")===c)});
+ $("curnote").textContent=c==="ILS"?"החיוב בפועל מתבצע בדולר אמריקאי, המחירים מוצגים בשקלים להמחשה לפי שער של 3 ש״ח לדולר.":"מחירי הגלישה בדולר אמריקאי, המטבע שבו מתבצע החיוב בפועל.";
+ statics();drawList();drawResult()}
+document.querySelectorAll(".cur button").forEach(function(b){b.onclick=function(){setCur(b.getAttribute("data-c"))}});
+$("q").addEventListener("input",drawList);
+setCur(CUR);
+// Website build: refresh prices from the live API on every visit; the snapshot stays if it fails.
+function getJ(p){return fetch(API+p,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+if(LIVE&&window.fetch)getJ("/get-countries").then(function(j){
+ var cs=(j.data||[]).filter(function(c){return c.price>0});if(cs.length<100)throw 0;
+ var zs=[];cs.forEach(function(c){if(zs.indexOf(c.zone)<0)zs.push(c.zone)});
+ return Promise.all(zs.map(function(z){return getJ("/get-packages?zone="+z).then(function(p){return [z,(p.data||p).filter(function(x){return x.data>0&&x.price>0}).map(function(x){return [x.data,x.price]}).sort(function(a,b){return a[0]-b[0]})]})})).then(function(ps){
+  var pk={};ps.forEach(function(x){pk[x[0]]=x[1]});
+  load({p:pk,c:cs.map(function(c){return [c.hebrew_name||c.country_name,c.country_name,c.iso_code,c.price,c.zone]})});
+  SEL=SEL.filter(by);if(!SEL.length&&by("DE"))SEL=["DE"];
+  var d=new Date(),z2=function(x){return (x<10?"0":"")+x};$("pdate").textContent=z2(d.getDate())+"."+z2(d.getMonth()+1)+"."+d.getFullYear();
+  statics();drawList();drawResult()})}).catch(function(){});
+// Highlight the section in view in the top bar.
+try{var links={};document.querySelectorAll(".nav a").forEach(function(a){links[a.getAttribute("href").slice(1)]=a});
+ var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){Object.keys(links).forEach(function(k){links[k].classList.toggle("on",k===e.target.id)})}})},{rootMargin:"-45% 0px -50% 0px"});
+ document.querySelectorAll("section.s").forEach(function(s){io2.observe(s)})}catch(e){}
+</script>
+
+</body></html>
